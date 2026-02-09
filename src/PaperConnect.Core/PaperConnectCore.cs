@@ -34,7 +34,7 @@ public class PaperConnectCore
             // 启动 EasyTier 服务端
             var args = $"-i 10.144.144.1 --hostname paper-connect-server-{server.ServerPort} " +
                       $"--network-name {roomCodeInfo.NetworkName} --network-secret {roomCodeInfo.NetworkKey} " +
-                      $"--enable-kcp-proxy --multi-thread --no-tun";
+                      $"--enable-kcp-proxy --multi-thread --no-tun -p tcp://public.easytier.top:11010";
 
             StartEasyTier(args);
         }
@@ -48,7 +48,7 @@ public class PaperConnectCore
             // 启动 EasyTier 客户端
             var args = $"--network-name {roomCodeInfo.NetworkName} " +
                       $"--network-secret {roomCodeInfo.NetworkKey} " +
-                      $"--enable-kcp-proxy --multi-thread --no-tun";
+                      $"--enable-kcp-proxy --multi-thread --no-tun -p tcp://public.easytier.top:11010";
 
             StartEasyTier(args);
         }
