@@ -32,7 +32,7 @@ public class PaperConnectCore
             _ = Task.Run(() => server.StartAsync());
 
             // 启动 EasyTier 服务端
-            var args = $"--service -i 10.144.144.1 --hostname paper-connect-server-{server.ServerPort} " +
+            var args = $"-i 10.144.144.1 --hostname paper-connect-server-{server.ServerPort} " +
                       $"--network-name {roomCodeInfo.NetworkName} --network-secret {roomCodeInfo.NetworkKey} " +
                       $"--enable-kcp-proxy --multi-thread --no-tun";
 
@@ -46,7 +46,7 @@ public class PaperConnectCore
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
             
             // 启动 EasyTier 客户端
-            var args = $"--service --network-name {roomCodeInfo.NetworkName} " +
+            var args = $"--network-name {roomCodeInfo.NetworkName} " +
                       $"--network-secret {roomCodeInfo.NetworkKey} " +
                       $"--enable-kcp-proxy --multi-thread --no-tun";
 
@@ -96,6 +96,8 @@ public class PaperConnectCore
             {
                 Console.WriteLine("Failed to start EasyTier process");
             }
+
+            _easyTierProcess.WaitForExit();
         }
         catch (Exception ex)
         {
