@@ -15,6 +15,7 @@ public class PaperConnectCore
     public required string EasyTierCliPath { get; set; }
     public string RoomCode { get; set; } = string.Empty;
     public int GamePort { get; set; } = 19132;
+    public Action<List<AgreementEntry.PlayerEntry>> OnPlayerInfoUpdated { get; set; }
     
     private Process _easyTierProcess;
     private bool _isClient = false;
@@ -44,6 +45,7 @@ public class PaperConnectCore
             
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
             var server = new PaperConnectServer("Dime", GamePort);
+            server.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
 
             // 启动服务器
             _ = Task.Run(() => server.StartAsync());
@@ -51,7 +53,7 @@ public class PaperConnectCore
             // 启动 EasyTier 服务端
             var args = $"-i 10.144.144.1 --hostname paper-connect-server-{server.ServerPort} " +
                        $"--network-name {roomCodeInfo.NetworkName} --network-secret {roomCodeInfo.NetworkKey} " +
-                       $"--tcp-whitelist {server.ServerPort}" +
+                       $"--tcp-whitelist {server.ServerPort} --udp-whitelist {GamePort} " +
                        string.Join(" ", argsEntry) +
                        " -p " +
                        string.Join(" -p ", serverEntry);
@@ -242,8 +244,42 @@ public class PaperConnectCore
                    $" --port-forward tcp://0.0.0.0:{serverPort}/10.144.144.1:{serverPort}";
         Task.Run(() => StartEasyTier(args));
         var client = new PaperConnectClient($"127.0.0.1", serverPort, "YJQ");
-        client.OnPlayerInfoUpdated = list => list.ForEach(play => Console.WriteLine(play.PlayerName));
+        client.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
 
+        AgreementEntry.PingResponse pingResponse = null;
+        while (true)
+        {
+            try
+            {
+                pingResponse = client.PingAsync().Result;
+                if (pingResponse != null)
+                {
+                    Console.WriteLine(pingResponse.GamePort);
+                    Console.WriteLine(pingResponse.GameProtocolType);
+                    Console.WriteLine(pingResponse.GameType);
+                    break;
+                }
+            }
+            catch
+            {
+            }
+
+            Thread.Sleep(1000);
+        }
+        
+        Stop();
+
+        args = $"-i 10.144.144.2 " +
+               $"--network-name {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkName} " +
+               $"--network-secret {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkKey} " +
+               string.Join(" ", argsEntry) +
+               " -p " +
+               string.Join(" -p ", serverEntry) +
+               $" --port-forward tcp://0.0.0.0:{serverPort}/10.144.144.1:{serverPort}" +
+               $" --port-forward udp://0.0.0.0:{GamePort}/10.144.144.1:{GamePort}";
+        
+        Task.Run(() => StartEasyTier(args));
+        
         while (true)
         {
             try
