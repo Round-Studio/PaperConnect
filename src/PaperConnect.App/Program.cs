@@ -8,8 +8,10 @@ public class Program
     {
         var ser = new PaperConnectCore()
         {
-            EasyTierPath = "D:/ET/easytier-core.exe"
+            EasyTierPath = "D:/ET/easytier-core.exe",
+            EasyTierCliPath = "D:/ET/easytier-cli.exe",
+            RoomCode = "P/ZAR1-2LNC-CEUX-13V1"
         };
-        ser.Initialize(CoreType.Server);
+        ser.Initialize(CoreType.Client);
     }
 }

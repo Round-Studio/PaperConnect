@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Round.SDK\Round.SDK\Round.SDK.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/SDK/">
+    <Project Path="src/Round.SDK/Round.SDK/Round.SDK.csproj" />
+  </Folder>
   <Project Path="src/PaperConnect.App/PaperConnect.App.csproj" />
   <Project Path="src/PaperConnect.Core/PaperConnect.Core.csproj" />
 </Solution>
