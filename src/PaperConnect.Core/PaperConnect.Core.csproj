@@ -7,7 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Round.SDK\Round.SDK\Round.SDK.csproj" />
+      <None Remove="Manifest\EasyTierParameter.json" />
+      <EmbeddedResource Include="Manifest\EasyTierParameter.json" />
+      <None Remove="Manifest\PublicServerList.json" />
+      <EmbeddedResource Include="Manifest\PublicServerList.json" />
     </ItemGroup>
 
 </Project>
