@@ -15,6 +15,7 @@ public class PaperConnectCore
     public required string EasyTierCliPath { get; set; }
     public string RoomCode { get; set; } = string.Empty;
     public int GamePort { get; set; } = 19132;
+    public string ClientPlayer { get; set; } = "Steve";
     public Action<List<AgreementEntry.PlayerEntry>> OnPlayerInfoUpdated { get; set; }
     
     private Process _easyTierProcess;
@@ -69,7 +70,7 @@ public class PaperConnectCore
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
             
             // 启动 EasyTier 客户端
-            var args = $"--network-name {roomCodeInfo.NetworkName} " +
+            var args = $"-d --network-name {roomCodeInfo.NetworkName} " +
                        $"--network-secret {roomCodeInfo.NetworkKey} " +
                        string.Join(" ", argsEntry) +
                        " -p " +
@@ -221,6 +222,7 @@ public class PaperConnectCore
         var json = StartEasyTierCli("-o json peer");
         return JsonSerializer.Deserialize<List<PeerInfo>>(json);
     }
+
     private void StartClient(string hostName)
     {
         var argsJson = EmbeddedResourceHelper.ReadEmbeddedResource(Assembly.GetExecutingAssembly(),
@@ -230,20 +232,19 @@ public class PaperConnectCore
 
         var argsEntry = JsonSerializer.Deserialize<List<string>>(argsJson);
         var serverEntry = JsonSerializer.Deserialize<List<string>>(serverJson);
-        
+
         Stop();
         var serverPort = int.Parse(hostName.Replace($"{RoomCodeGenerator.ROOM_NAME}-server-", ""));
         Console.WriteLine($"Host Port: {serverPort}");
 
-        var args = $"-i 10.144.144.2 " +
-                   $"--network-name {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkName} " +
+        var args = $"-d --network-name {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkName} " +
                    $"--network-secret {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkKey} " +
                    string.Join(" ", argsEntry) +
                    " -p " +
                    string.Join(" -p ", serverEntry) +
                    $" --port-forward tcp://0.0.0.0:{serverPort}/10.144.144.1:{serverPort}";
         Task.Run(() => StartEasyTier(args));
-        var client = new PaperConnectClient($"127.0.0.1", serverPort, "YJQ");
+        var client = new PaperConnectClient($"127.0.0.1", serverPort, ClientPlayer);
         client.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
 
         AgreementEntry.PingResponse pingResponse = null;
@@ -266,20 +267,19 @@ public class PaperConnectCore
 
             Thread.Sleep(1000);
         }
-        
+
         Stop();
 
-        args = $"-i 10.144.144.2 " +
-               $"--network-name {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkName} " +
+        args = $"-d --network-name {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkName} " +
                $"--network-secret {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkKey} " +
                string.Join(" ", argsEntry) +
                " -p " +
                string.Join(" -p ", serverEntry) +
                $" --port-forward tcp://0.0.0.0:{serverPort}/10.144.144.1:{serverPort}" +
                $" --port-forward udp://0.0.0.0:{GamePort}/10.144.144.1:{GamePort}";
-        
+
         Task.Run(() => StartEasyTier(args));
-        
+
         while (true)
         {
             try

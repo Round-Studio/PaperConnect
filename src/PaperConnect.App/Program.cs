@@ -7,7 +7,7 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        Process.GetProcessesByName("easytier-core.exe").ToList().ForEach(p => p.Kill(true));
+        Process.GetProcessesByName("easytier-core").ToList().ForEach(p => p.Kill(true));
         var ser = new PaperConnectCore()
         {
             EasyTierPath = "easytier-core.exe",
@@ -33,7 +33,10 @@ public class Program
         {
             Console.Write("联机码:");
             var roomCode = Console.ReadLine();
+            Console.Write("玩家:");
+            var player = Console.ReadLine();
             ser.RoomCode = roomCode;
+            ser.ClientPlayer = player;
             ser.Initialize(CoreType.Client);
         }
     }
