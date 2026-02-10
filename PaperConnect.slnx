@@ -4,4 +4,5 @@
   </Folder>
   <Project Path="src/PaperConnect.App/PaperConnect.App.csproj" />
   <Project Path="src/PaperConnect.Core/PaperConnect.Core.csproj" />
+  <Project Path="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
 </Solution>
