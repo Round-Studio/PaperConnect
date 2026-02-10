@@ -1,0 +1,65 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:onePointControls="clr-namespace:OnePointUI.Avalonia.Styling.Controls.OnePointControls;assembly=OnePointUI.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PaperConnect.Desktop.Views.Pages.MainPages.MainRoomServer">
+    <Grid ColumnDefinitions="*,*">
+        <Grid Grid.Column="0"
+              RowDefinitions="*,*"
+              Margin="50,0">
+            <Grid Grid.Row="0">
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Spacing="12">
+                    <onePointControls:FontIcon Glyph="&#xE774;"
+                                               VerticalAlignment="Center"
+                                               FontSize="48"></onePointControls:FontIcon>
+                    <TextBlock Text="房间管理"
+                               VerticalAlignment="Center"
+                               FontSize="32"></TextBlock>
+                </StackPanel>
+            </Grid>
+        
+            <StackPanel Grid.Row="1"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Stretch"
+                        Spacing="8">
+                <TextBlock Text="房间信息"
+                           FontWeight="Bold"
+                           FontSize="16"></TextBlock>
+                
+                <TextBlock Text="联机码：???"
+                           Name="RoomCode"></TextBlock>
+                <TextBlock Text="联机人数：-1"
+                           Name="PlayerCount"></TextBlock>
+                
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8">
+                    <Button Padding="22,8"
+                            Content="复制联机码"
+                            Classes="Accent"></Button>
+                    <Button Padding="22,8"
+                            Content="关闭房间"></Button>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+        
+        <Grid Grid.Column="1"
+              RowDefinitions="Auto,*"
+              Margin="0,50,50,50">
+            <TextBlock Grid.Row="0"
+                       Margin="0,0,0,10"
+                       Text="玩家列表"></TextBlock>
+            
+            <ScrollViewer Grid.Row="1">
+                <StackPanel Margin="0,0,15,0"
+                            Spacing="8"
+                            Name="PlayerList">
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,18 @@
+<windowFrame:OnePointWindow xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:windowFrame="clr-namespace:OnePointUI.Avalonia.Styling.Controls.OnePointControls.WindowFrame;assembly=OnePointUI.Avalonia"
+        xmlns:navigation="clr-namespace:OnePointUI.Avalonia.Styling.Controls.OnePointControls.Navigation;assembly=OnePointUI.Avalonia"
+        xmlns:pages="clr-namespace:PaperConnect.Desktop.Views.Pages"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="PaperConnect.Desktop.Views.Windows.MainWindow"
+        IsMainWindow="True"
+        Width="1100" Height="680"
+        MinWidth="1100" MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        Title="PaperConnect">
+    <windowFrame:OnePointWindow.MainContent>
+        <pages:MainView/>
+    </windowFrame:OnePointWindow.MainContent>
+</windowFrame:OnePointWindow>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="src/PaperConnect.Desktop/App.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
+        <entry key="src/PaperConnect.Desktop/Views/Pages/DialogContent/DialogCreatRoomContent.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
+        <entry key="src/PaperConnect.Desktop/Views/Pages/MainPages/MainHome.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
+        <entry key="src/PaperConnect.Desktop/Views/Pages/MainPages/MainRoomClient.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
+        <entry key="src/PaperConnect.Desktop/Views/Pages/MainPages/MainRoomHost.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
+        <entry key="src/PaperConnect.Desktop/Views/Pages/MainView.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
+        <entry key="src/PaperConnect.Desktop/Views/Windows/MainWindow.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
+      </map>
+    </option>
+  </component>
+</project>

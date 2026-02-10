@@ -1,0 +1,43 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:onePointControls="clr-namespace:OnePointUI.Avalonia.Styling.Controls.OnePointControls;assembly=OnePointUI.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PaperConnect.Desktop.Views.Pages.MainPages.MainHome">
+    <Grid ColumnDefinitions="*,*">
+        <Grid Grid.Column="0"
+              RowDefinitions="*,*"
+              Margin="50,0">
+            <Grid Grid.Row="0">
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Spacing="12">
+                    <onePointControls:FontIcon Glyph="&#xE80F;"
+                                               VerticalAlignment="Center"
+                                               FontSize="48"></onePointControls:FontIcon>
+                    <TextBlock Text="主页"
+                               VerticalAlignment="Center"
+                               FontSize="32"></TextBlock>
+                </StackPanel>
+            </Grid>
+        
+            <StackPanel Grid.Row="1"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Stretch"
+                        Spacing="8">
+                <onePointControls:SettingCard Header="创建房间"
+                                              Description="创建一个联机房间，让你的好友加入"
+                                              Name="CreatRoomBtn"
+                                              Click="CreatRoomBtn_OnClick"
+                                              Glyph="&#xE774;"
+                                              IsClickable="True"/>
+                <onePointControls:SettingCard Header="加入房间"
+                                              Description="加入一个由你好友创建的房间"
+                                              Glyph="&#xECC8;"
+                                              IsClickable="True"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

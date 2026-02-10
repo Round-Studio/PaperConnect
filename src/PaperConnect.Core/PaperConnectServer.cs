@@ -43,6 +43,8 @@ public class PaperConnectServer
     {
         _listener.Start();
         Console.WriteLine($"[PaperConnect] Server listening on port {ServerPort}");
+        
+        OnPlayerInfoUpdated.Invoke(_players.Values.ToList());
 
         // 启动心跳清理任务
         _ = Task.Run(CleanupInactivePlayers, _cts.Token);

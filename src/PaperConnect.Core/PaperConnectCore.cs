@@ -45,7 +45,7 @@ public class PaperConnectCore
             Console.WriteLine($"RoomCode: {RoomCode}");
             
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
-            var server = new PaperConnectServer("Dime", GamePort);
+            var server = new PaperConnectServer(ClientPlayer, GamePort);
             server.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
 
             // 启动服务器
