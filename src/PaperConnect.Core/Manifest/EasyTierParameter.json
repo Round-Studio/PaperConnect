@@ -1,0 +1,12 @@
+[
+  "--no-tun",
+  "--compression=zstd",
+  "--multi-thread",
+  "--latency-first",
+  "--enable-kcp-proxy",
+  "-l",
+  "udp://0.0.0.0:0",
+  "-l",
+  "tcp://0.0.0.0:0",
+  "--disable-p2p"
+]
