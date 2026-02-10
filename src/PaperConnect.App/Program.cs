@@ -10,7 +10,7 @@ public class Program
         {
             EasyTierPath = "D:/ET/easytier-core.exe",
             EasyTierCliPath = "D:/ET/easytier-cli.exe",
-            RoomCode = "P/ZAR1-2LNC-CEUX-13V1"
+            RoomCode = "P/KYVZ-HA9V-LDRY-96JE"
         };
         ser.Initialize(CoreType.Client);
     }

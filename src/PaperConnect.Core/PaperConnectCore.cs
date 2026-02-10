@@ -166,34 +166,34 @@ public class PaperConnectCore
                 CreateNoWindow = true
             };
 
-            _easyTierProcess = new Process { StartInfo = startInfo };
+            var easyTierProcess = new Process { StartInfo = startInfo };
             
             // 添加输出事件处理
-            _easyTierProcess.OutputDataReceived += (sender, e) => 
+            easyTierProcess.OutputDataReceived += (sender, e) => 
             {
                 if (!string.IsNullOrEmpty(e.Data))
                     sb.AppendLine(e.Data);
             };
             
-            _easyTierProcess.ErrorDataReceived += (sender, e) => 
+            easyTierProcess.ErrorDataReceived += (sender, e) => 
             {
                 if (!string.IsNullOrEmpty(e.Data))
                     Console.WriteLine($"[EasyTierCli ERROR] {e.Data}");
             };
 
-            if (_easyTierProcess.Start())
+            if (easyTierProcess.Start())
             {
-                _easyTierProcess.BeginOutputReadLine();
-                _easyTierProcess.BeginErrorReadLine();
+                easyTierProcess.BeginOutputReadLine();
+                easyTierProcess.BeginErrorReadLine();
                 
-                Console.WriteLine($"EasyTierCli started with PID: {_easyTierProcess.Id}");
+                Console.WriteLine($"EasyTierCli started with PID: {easyTierProcess.Id}");
             }
             else
             {
                 Console.WriteLine("Failed to start EasyTierCli process");
             }
 
-            _easyTierProcess.WaitForExit();
+            easyTierProcess.WaitForExit();
         }
         catch (Exception ex)
         {
