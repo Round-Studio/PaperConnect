@@ -11,6 +11,7 @@
         Width="1100" Height="680"
         MinWidth="1100" MinHeight="680"
         WindowStartupLocation="CenterScreen"
+        Icon="avares://PaperConnect.Desktop/Assets/PaperConnect.Icon.ico"
         Title="PaperConnect">
     <windowFrame:OnePointWindow.MainContent>
         <pages:MainView/>
