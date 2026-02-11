@@ -15,22 +15,29 @@ public partial class MainHome : UserControl
         InitializeComponent();
     }
 
-    private void CreatRoomBtn_OnClick(object? sender, RoutedEventArgs e)
+    private void CreatBtn_OnClick(object? sender, RoutedEventArgs e)
     {
-        var dialog = new DialogCreatRoomContent();
-        DialogHost.Show(new DialogInfo()
+        if (string.IsNullOrEmpty(CreatPort.Text) || string.IsNullOrEmpty(CreatName.Text))
         {
-            Title = "创建房间",
-            Content = dialog,
-            CloseButtonText = "创建",
-            PrimaryButtonText = "取消",
-            CloseAction = () =>
-            {
-                var hostName = dialog.RoomHostName;
-                var port = dialog.RoomNumber;
+            return;
+        }
+        
+        var hostName = CreatName.Text;
+        var port = int.Parse(CreatPort.Text);
 
-                MainView.NavigationFrame.NavigateTo(new MainRoomServer(port, hostName));
-            }
-        });
+        MainView.NavigationFrame.NavigateTo(new MainRoomServer(port, hostName));
+    }
+
+    private void AddBtn_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(AddCode.Text) || string.IsNullOrEmpty(AddPlayer.Text))
+        {
+            return;
+        }
+        
+        var code = AddCode.Text;
+        var player = AddPlayer.Text;
+
+        MainView.NavigationFrame.NavigateTo(new MainRoomClient(code, player));
     }
 }

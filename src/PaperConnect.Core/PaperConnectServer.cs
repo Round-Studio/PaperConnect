@@ -4,12 +4,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using PaperConnect.Core.Entry;
+using PaperConnect.Core.Interface;
 using PaperConnect.Core.Module.Global;
 
 namespace PaperConnect.Core;
 
 
-public class PaperConnectServer
+public class PaperConnectServer : IPaperConnect
 {
     private readonly int _gamePort;
     private readonly TcpListener _listener;
@@ -43,7 +44,7 @@ public class PaperConnectServer
     {
         _listener.Start();
         Console.WriteLine($"[PaperConnect] Server listening on port {ServerPort}");
-        
+
         OnPlayerInfoUpdated.Invoke(_players.Values.ToList());
 
         // 启动心跳清理任务
@@ -164,9 +165,9 @@ public class PaperConnectServer
                 var activePlayers = _players.Values
                     .Where(p => p.IsRoomHost || (DateTime.UtcNow - p.LastHeartbeat).TotalSeconds <= 10)
                     .ToList();
-        
+
                 OnPlayerInfoUpdated?.Invoke(activePlayers);
-        
+
                 // 返回给客户端的响应也要包含房主
                 var response = new AgreementEntry.PlayerResponse
                 {
@@ -178,7 +179,7 @@ public class PaperConnectServer
                         IsRoomHost = p.IsRoomHost
                     }).ToList()
                 };
-        
+
                 await SendJsonResponse(stream, response);
             }
             else

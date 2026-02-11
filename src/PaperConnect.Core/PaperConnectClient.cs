@@ -5,11 +5,12 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using PaperConnect.Core.Entry;
+using PaperConnect.Core.Interface;
 using PaperConnect.Core.Module.Global;
 
 namespace PaperConnect.Core;
 
-public class PaperConnectClient : IDisposable
+public class PaperConnectClient : IDisposable,IPaperConnect
 {
     private readonly string _serverIp;
     private readonly int _serverPort;
@@ -181,6 +182,11 @@ public class PaperConnectClient : IDisposable
     }
 
     ~PaperConnectClient()
+    {
+        Dispose();
+    }
+
+    public void Stop()
     {
         Dispose();
     }

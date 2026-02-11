@@ -8,6 +8,7 @@
         <entry key="src/PaperConnect.Desktop/Views/Pages/MainPages/MainHome.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
         <entry key="src/PaperConnect.Desktop/Views/Pages/MainPages/MainRoomClient.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
         <entry key="src/PaperConnect.Desktop/Views/Pages/MainPages/MainRoomHost.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
+        <entry key="src/PaperConnect.Desktop/Views/Pages/MainPages/MainRoomServer.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
         <entry key="src/PaperConnect.Desktop/Views/Pages/MainView.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
         <entry key="src/PaperConnect.Desktop/Views/Windows/MainWindow.axaml" value="src/PaperConnect.Desktop/PaperConnect.Desktop.csproj" />
       </map>

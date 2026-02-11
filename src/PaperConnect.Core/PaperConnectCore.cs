@@ -17,6 +17,7 @@ public class PaperConnectCore
     public int GamePort { get; set; } = 19132;
     public string ClientPlayer { get; set; } = "Steve";
     public Action<List<AgreementEntry.PlayerEntry>> OnPlayerInfoUpdated { get; set; }
+    public Action? LinkSuccess { get; set; }
     
     private Process _easyTierProcess;
     private bool _isClient = false;
@@ -158,6 +159,12 @@ public class PaperConnectCore
             _easyTierProcess.Kill();
             _easyTierProcess.WaitForExit(5000);
             Console.WriteLine("EasyTier stopped");
+            
+            var processes = Process.GetProcesses()
+                .Where(p => p.ProcessName.Equals("easytier-core.exe",StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            processes.ForEach(p => p.Kill(true));
         }
         catch (Exception ex)
         {
@@ -299,7 +306,7 @@ public class PaperConnectCore
 
             Thread.Sleep(1000);
         }
-
+        LinkSuccess?.Invoke();
         client.StartHeartbeat();
         while (true) ;
     }

@@ -3,41 +3,69 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:onePointControls="clr-namespace:OnePointUI.Avalonia.Styling.Controls.OnePointControls;assembly=OnePointUI.Avalonia"
+             xmlns:items="clr-namespace:OnePointUI.Avalonia.Styling.Controls.OnePointControls.Items;assembly=OnePointUI.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PaperConnect.Desktop.Views.Pages.MainPages.MainHome">
-    <Grid ColumnDefinitions="*,*">
-        <Grid Grid.Column="0"
-              RowDefinitions="*,*"
-              Margin="50,0">
-            <Grid Grid.Row="0">
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            Spacing="12">
-                    <onePointControls:FontIcon Glyph="&#xE80F;"
-                                               VerticalAlignment="Center"
-                                               FontSize="48"></onePointControls:FontIcon>
-                    <TextBlock Text="主页"
-                               VerticalAlignment="Center"
-                               FontSize="32"></TextBlock>
+    <Grid>
+        <TabControl Margin="8">
+            <TabItem Header="创建房间">
+                <StackPanel Spacing="8"
+                            Margin="10,0">
+                    <items:BorderCard>
+                        <StackPanel Spacing="8">
+                            <DockPanel LastChildFill="True">
+                                <TextBlock Text="游戏端口"
+                                           Width="100"
+                                           Margin="8,0,0,0"
+                                           VerticalAlignment="Center"></TextBlock>
+                                <TextBox Name="CreatPort"></TextBox>
+                            </DockPanel>
+                            <DockPanel LastChildFill="True">
+                                <TextBlock Text="房主名称"
+                                           Width="100"
+                                           Margin="8,0,0,0"
+                                           VerticalAlignment="Center"></TextBlock>
+                                <TextBox Name="CreatName"></TextBox>
+                            </DockPanel>
+                        </StackPanel>
+                    </items:BorderCard>
+                    <onePointControls:SettingCard Header="创建房间"
+                                                  Description="填写完成上方的信息，立刻开始创建房间"
+                                                  Glyph="&#xE774;"
+                                                  IsClickable="True"
+                                                  Name="CreatBtn"
+                                                  Click="CreatBtn_OnClick"></onePointControls:SettingCard>
                 </StackPanel>
-            </Grid>
-        
-            <StackPanel Grid.Row="1"
-                        VerticalAlignment="Top"
-                        HorizontalAlignment="Stretch"
-                        Spacing="8">
-                <onePointControls:SettingCard Header="创建房间"
-                                              Description="创建一个联机房间，让你的好友加入"
-                                              Name="CreatRoomBtn"
-                                              Click="CreatRoomBtn_OnClick"
-                                              Glyph="&#xE774;"
-                                              IsClickable="True"/>
-                <onePointControls:SettingCard Header="加入房间"
-                                              Description="加入一个由你好友创建的房间"
-                                              Glyph="&#xECC8;"
-                                              IsClickable="True"/>
-            </StackPanel>
-        </Grid>
+            </TabItem>
+            <TabItem Header="加入房间">
+                <StackPanel Spacing="8"
+                            Margin="10,0">
+                    <items:BorderCard>
+                        <StackPanel Spacing="8">
+                            <DockPanel LastChildFill="True">
+                                <TextBlock Text="联机码"
+                                           Width="100"
+                                           Margin="8,0,0,0"
+                                           VerticalAlignment="Center"></TextBlock>
+                                <TextBox Name="AddCode"></TextBox>
+                            </DockPanel>
+                            <DockPanel LastChildFill="True">
+                                <TextBlock Text="玩家名称"
+                                           Width="100"
+                                           Margin="8,0,0,0"
+                                           VerticalAlignment="Center"></TextBlock>
+                                <TextBox Name="AddPlayer"></TextBox>
+                            </DockPanel>
+                        </StackPanel>
+                    </items:BorderCard>
+                    <onePointControls:SettingCard Header="加入房间"
+                                                  Description="根据上方信息，立刻加入房间"
+                                                  Glyph="&#xECC8;"
+                                                  IsClickable="True"
+                                                  Name="AddBtn"
+                                                  Click="AddBtn_OnClick"></onePointControls:SettingCard>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>
