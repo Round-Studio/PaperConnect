@@ -8,7 +8,8 @@
              x:Class="PaperConnect.Desktop.Views.Pages.MainPages.MainHome">
     <Grid>
         <TabControl Margin="8">
-            <TabItem Header="创建房间">
+            <TabItem Header="创建房间"
+                     IsSelected="True">
                 <StackPanel Spacing="8"
                             Margin="10,0">
                     <items:BorderCard>
@@ -64,6 +65,52 @@
                                                   IsClickable="True"
                                                   Name="AddBtn"
                                                   Click="AddBtn_OnClick"></onePointControls:SettingCard>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="关于我们">
+                <StackPanel Spacing="4"
+                            Margin="10,0">
+                    <TextBlock Text="关于 PaperConnect"
+                               FontSize="18"></TextBlock>
+                    
+                    <TextBlock Text="开发者"
+                               FontSize="15"
+                               FontWeight="Bold"></TextBlock>
+                    <StackPanel Margin="15,0,0,0">
+                        <TextBlock Text="PaperConnect 本体：Dime"></TextBlock>
+                        <TextBlock Text="PaperConnect 规范：Dime"></TextBlock>
+                    </StackPanel>
+                    
+                    <TextBlock Text="鸣谢"
+                               FontSize="15"
+                               FontWeight="Bold"></TextBlock>
+                    <StackPanel Margin="15,0,0,0">
+                        <TextBlock Text="EasyTier 开发、测试节点提供：天跑"></TextBlock>
+                        <TextBlock Text="基岩版游戏联机技术顾问：YoumiHa、天跑、星尘"></TextBlock>
+                        <TextBlock Text="本项目基于 EasyTier 网络工具"></TextBlock>
+                    </StackPanel>
+                    
+                    <TextBlock Text="组件"
+                               FontSize="15"
+                               FontWeight="Bold"></TextBlock>
+                    <StackPanel Margin="15,0,0,0">
+                        <TextBlock Text="dotNET 10.0"></TextBlock>
+                        <TextBlock Text="Avalonia"></TextBlock>
+                        <TextBlock Text="OnePointUI.Avalonia"></TextBlock>
+                        <TextBlock Text="Round.SDK"></TextBlock>
+                    </StackPanel>
+                    
+                    <TextBlock Text="PaperConnect 相关页面"
+                               FontSize="15"
+                               FontWeight="Bold"></TextBlock>
+                    <StackPanel Margin="15,0,0,0">
+                        <HyperlinkButton Content="PaperConnect 开源地址"
+                                         NavigateUri="https://github.com/Round-Studio/PaperConnect"></HyperlinkButton>
+                        <HyperlinkButton Content="PaperConnect 规范文档"
+                                         NavigateUri="https://docs.roundstudio.top/docs/standard/paperconnect"></HyperlinkButton>
+                        <HyperlinkButton Content="EasyTier 官方网站"
+                                         NavigateUri="https://easytier.cn"></HyperlinkButton>
+                    </StackPanel>
                 </StackPanel>
             </TabItem>
         </TabControl>
