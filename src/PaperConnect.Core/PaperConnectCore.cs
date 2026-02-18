@@ -8,6 +8,10 @@ using PaperConnect.Core.Entry.Easytier;
 using PaperConnect.Core.Enum;
 using PaperConnect.Core.Module.Helper;
 using PaperConnect.Core.Room;
+using PaperConnect.Core.Utils;
+using Tomlyn;
+
+
 
 public class PaperConnectCore
 {
@@ -17,14 +21,18 @@ public class PaperConnectCore
     public int GamePort { get; set; } = 19132;
     public string ClientPlayer { get; set; } = "Steve";
     public Action<List<AgreementEntry.PlayerEntry>> OnPlayerInfoUpdated { get; set; }
-    public Action? LinkSuccess { get; set; }
+    public System.Action? LinkSuccess { get; set; }
     
     private Process _easyTierProcess;
     private bool _isClient = false;
-
-    public void Initialize(CoreType coreType)
+   
+	public void Initialize(CoreType coreType)
     {
-        if (string.IsNullOrEmpty(EasyTierPath)) 
+	    if (File.Exists("cofig.toml"))
+	    {
+		    File.Delete("config.toml");
+	    }
+		if (string.IsNullOrEmpty(EasyTierPath)) 
             throw new NullReferenceException("EasyTierPath");
 
         // 验证 EasyTier 文件是否存在
@@ -35,14 +43,17 @@ public class PaperConnectCore
             "PaperConnect.Core.Manifest.EasyTierParameter.json");
         var serverJson = EmbeddedResourceHelper.ReadEmbeddedResource(Assembly.GetExecutingAssembly(),
             "PaperConnect.Core.Manifest.PublicServerList.json");
-
+       
         var argsEntry = JsonSerializer.Deserialize<List<string>>(argsJson);
         var serverEntry = JsonSerializer.Deserialize<List<string>>(serverJson);
 
 
         if (coreType == CoreType.Server)
         {
-            RoomCode = RoomCodeGenerator.GenerateRoomCode();
+	        Root acl = PaperConnectAclBuilder.BuildPaperConnectAcl(true, "10.144.144.1",null);
+			var fromModel = Toml.FromModel(acl);
+			File.WriteAllText("config.toml", fromModel);
+			RoomCode = RoomCodeGenerator.GenerateRoomCode();
             Console.WriteLine($"RoomCode: {RoomCode}");
             
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
@@ -55,7 +66,7 @@ public class PaperConnectCore
             // 启动 EasyTier 服务端
             var args = $"-i 10.144.144.1 --hostname paper-connect-server-{server.ServerPort} " +
                        $"--network-name {roomCodeInfo.NetworkName} --network-secret {roomCodeInfo.NetworkKey} " +
-                       $"--tcp-whitelist {server.ServerPort} --udp-whitelist {GamePort} " +
+                    //   $"--tcp-whitelist {server.ServerPort} --udp-whitelist {GamePort} " +
                        string.Join(" ", argsEntry) +
                        " -p " +
                        string.Join(" -p ", serverEntry);
@@ -64,8 +75,11 @@ public class PaperConnectCore
         }
         else if (coreType == CoreType.Client)
         {
-            _isClient = true;
-            if (string.IsNullOrEmpty(RoomCode)) 
+	        _isClient = true;
+			var acl = PaperConnectAclBuilder.BuildPaperConnectAcl(false, "10.144.144.1", null);
+			var fromModel = Toml.FromModel(acl);
+			File.WriteAllText("config.toml", fromModel);
+			if (string.IsNullOrEmpty(RoomCode)) 
                 throw new NullReferenceException("RoomCode");
             
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);

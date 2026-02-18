@@ -13,4 +13,8 @@
       <EmbeddedResource Include="Manifest\PublicServerList.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Tomlyn" Version="0.20.0" />
+    </ItemGroup>
+
 </Project>

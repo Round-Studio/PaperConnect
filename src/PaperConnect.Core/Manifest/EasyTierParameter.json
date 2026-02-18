@@ -1,9 +1,9 @@
 [
-  "--no-tun",
   "--multi-thread",
   "-l",
   "udp://0.0.0.0:0",
   "-l",
   "tcp://0.0.0.0:0",
-  "--disable-p2p"
+  "--disable-p2p",
+  "-c ./config.toml"
 ]
