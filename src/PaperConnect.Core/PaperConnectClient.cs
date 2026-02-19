@@ -77,7 +77,7 @@ public class PaperConnectClient : IDisposable,IPaperConnect
                 try
                 {
                     var players = await SendHeartbeatAsync(_heartbeatCts.Token);
-                    OnPlayerInfoUpdated.Invoke(players.Players);
+                    OnPlayerInfoUpdated?.Invoke(players.Players);
                 }
                 catch (Exception ex)
                 {

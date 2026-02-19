@@ -23,17 +23,21 @@ public class PaperConnectCore
     public Action<List<AgreementEntry.PlayerEntry>> OnPlayerInfoUpdated { get; set; }
     public System.Action? LinkSuccess { get; set; }
     public CoreType CoreType { get; private set; }
-    
+
     private Process _easyTierProcess;
+    private List<string> PublicServers { get; set; }
     private bool _isClient = false;
-   
-	public void Initialize(CoreType coreType,List<string> etPublicser)
+    
+    private PaperConnectClient _client { get; set; }
+
+    public void Initialize(CoreType coreType, List<string> etPublicser)
     {
         CoreType = coreType;
-	    if (File.Exists("config.toml"))
+        PublicServers = etPublicser;
+        if (File.Exists("config.toml"))
             File.Delete("config.toml");
-        
-		if (string.IsNullOrEmpty(EasyTierPath)) 
+
+        if (string.IsNullOrEmpty(EasyTierPath))
             throw new NullReferenceException("EasyTierPath");
 
         // 验证 EasyTier 文件是否存在
@@ -42,19 +46,19 @@ public class PaperConnectCore
 
         var argsJson = EmbeddedResourceHelper.ReadEmbeddedResource(Assembly.GetExecutingAssembly(),
             "PaperConnect.Core.Manifest.EasyTierParameter.json");
-       
+
         var argsEntry = JsonSerializer.Deserialize<List<string>>(argsJson);
         var serverEntry = etPublicser;
 
 
         if (coreType == CoreType.Server)
         {
-	        Root acl = PaperConnectAclBuilder.BuildPaperConnectAcl(true, "10.144.144.1",null);
-			var fromModel = Toml.FromModel(acl);
-			File.WriteAllText("config.toml", fromModel);
-			RoomCode = RoomCodeGenerator.GenerateRoomCode();
+            Root acl = PaperConnectAclBuilder.BuildPaperConnectAcl(true, "10.144.144.1", null);
+            var fromModel = Toml.FromModel(acl);
+            File.WriteAllText("config.toml", fromModel);
+            RoomCode = RoomCodeGenerator.GenerateRoomCode();
             Console.WriteLine($"RoomCode: {RoomCode}");
-            
+
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
             var server = new PaperConnectServer(ClientPlayer, GamePort);
             server.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
@@ -65,7 +69,7 @@ public class PaperConnectCore
             // 启动 EasyTier 服务端
             var args = $"-i 10.144.144.1 --hostname paper-connect-server-{server.ServerPort} " +
                        $"--network-name {roomCodeInfo.NetworkName} --network-secret {roomCodeInfo.NetworkKey} " +
-                    //   $"--tcp-whitelist {server.ServerPort} --udp-whitelist {GamePort} " +
+                       //   $"--tcp-whitelist {server.ServerPort} --udp-whitelist {GamePort} " +
                        string.Join(" ", argsEntry) +
                        " -p " +
                        string.Join(" -p ", serverEntry);
@@ -74,15 +78,15 @@ public class PaperConnectCore
         }
         else if (coreType == CoreType.Client)
         {
-	        _isClient = true;
-			var acl = PaperConnectAclBuilder.BuildPaperConnectAcl(false, "10.144.144.1", null);
-			var fromModel = Toml.FromModel(acl);
-			File.WriteAllText("config.toml", fromModel);
-			if (string.IsNullOrEmpty(RoomCode)) 
+            _isClient = true;
+            var acl = PaperConnectAclBuilder.BuildPaperConnectAcl(false, "10.144.144.1", null);
+            var fromModel = Toml.FromModel(acl);
+            File.WriteAllText("config.toml", fromModel);
+            if (string.IsNullOrEmpty(RoomCode))
                 throw new NullReferenceException("RoomCode");
-            
+
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
-            
+
             // 启动 EasyTier 客户端
             var args = $"-d --network-name {roomCodeInfo.NetworkName} " +
                        $"--network-secret {roomCodeInfo.NetworkKey} " +
@@ -93,6 +97,7 @@ public class PaperConnectCore
             StartEasyTier(args);
         }
     }
+
     bool isStart = false;
 
     private void StartEasyTier(string arguments)
@@ -100,7 +105,7 @@ public class PaperConnectCore
         try
         {
             Console.WriteLine($"Starting EasyTier with args: {arguments}");
-            
+
             var startInfo = new ProcessStartInfo
             {
                 FileName = EasyTierPath,
@@ -112,14 +117,14 @@ public class PaperConnectCore
             };
 
             _easyTierProcess = new Process { StartInfo = startInfo };
-            
+
             // 添加输出事件处理
-            _easyTierProcess.OutputDataReceived += (sender, e) => 
+            _easyTierProcess.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
                     Console.WriteLine($"[EasyTier] {e.Data}");
 
-                if (!isStart && 
+                if (!isStart &&
                     _isClient)
                 {
                     if (e.Data.Contains("new peer added."))
@@ -132,14 +137,14 @@ public class PaperConnectCore
                             if (p.Hostname.Contains(RoomCodeGenerator.ROOM_NAME))
                             {
                                 Console.WriteLine(p.Hostname);
-                                StartClient(p.Hostname);
+                                StartClient(p.Hostname, PublicServers);
                             }
                         });
                     }
                 }
             };
-            
-            _easyTierProcess.ErrorDataReceived += (sender, e) => 
+
+            _easyTierProcess.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
                     Console.WriteLine($"[EasyTier ERROR] {e.Data}");
@@ -149,7 +154,7 @@ public class PaperConnectCore
             {
                 _easyTierProcess.BeginOutputReadLine();
                 _easyTierProcess.BeginErrorReadLine();
-                
+
                 Console.WriteLine($"EasyTier started with PID: {_easyTierProcess.Id}");
             }
             else
@@ -165,6 +170,7 @@ public class PaperConnectCore
             throw;
         }
     }
+
     public void Stop()
     {
         try
@@ -172,9 +178,9 @@ public class PaperConnectCore
             _easyTierProcess.Kill();
             _easyTierProcess.WaitForExit(5000);
             Console.WriteLine("EasyTier stopped");
-            
+
             var processes = Process.GetProcesses()
-                .Where(p => p.ProcessName.Equals("easytier-core.exe",StringComparison.OrdinalIgnoreCase))
+                .Where(p => p.ProcessName.Equals("easytier-core.exe", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             processes.ForEach(p => p.Kill(true));
@@ -183,14 +189,20 @@ public class PaperConnectCore
         {
             Console.WriteLine($"Error stopping EasyTier: {ex.Message}");
         }
+
+        if (_client != null)
+        {
+            _client.Stop();
+        }
     }
+
     private string StartEasyTierCli(string arguments)
     {
         var sb = new StringBuilder();
         try
         {
             Console.WriteLine($"Starting EasyTierCli with args: {arguments}");
-            
+
             var startInfo = new ProcessStartInfo
             {
                 FileName = EasyTierCliPath,
@@ -201,15 +213,15 @@ public class PaperConnectCore
                 CreateNoWindow = true
             };
             var etCli = new Process { StartInfo = startInfo };
-            
+
             // 添加输出事件处理
-            etCli.OutputDataReceived += (sender, e) => 
+            etCli.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
                     sb.AppendLine(e.Data);
             };
-            
-            etCli.ErrorDataReceived += (sender, e) => 
+
+            etCli.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
                     Console.WriteLine($"[EasyTierCli ERROR] {e.Data}");
@@ -219,7 +231,7 @@ public class PaperConnectCore
             {
                 etCli.BeginOutputReadLine();
                 etCli.BeginErrorReadLine();
-                
+
                 Console.WriteLine($"EasyTierCli started with PID: {etCli.Id}");
             }
             else
@@ -237,21 +249,20 @@ public class PaperConnectCore
 
         return sb.ToString();
     }
+
     private List<PeerInfo> GetPeers()
     {
         var json = StartEasyTierCli("-o json peer");
         return JsonSerializer.Deserialize<List<PeerInfo>>(json);
     }
 
-    private void StartClient(string hostName)
+    private void StartClient(string hostName, List<string> sers)
     {
         var argsJson = EmbeddedResourceHelper.ReadEmbeddedResource(Assembly.GetExecutingAssembly(),
             "PaperConnect.Core.Manifest.EasyTierParameter.json");
-        var serverJson = EmbeddedResourceHelper.ReadEmbeddedResource(Assembly.GetExecutingAssembly(),
-            "PaperConnect.Core.Manifest.PublicServerList.json");
 
         var argsEntry = JsonSerializer.Deserialize<List<string>>(argsJson);
-        var serverEntry = JsonSerializer.Deserialize<List<string>>(serverJson);
+        var serverEntry = sers;
 
         Stop();
         var serverPort = int.Parse(hostName.Replace($"{RoomCodeGenerator.ROOM_NAME}-server-", ""));
@@ -264,15 +275,15 @@ public class PaperConnectCore
                    string.Join(" -p ", serverEntry) +
                    $" --port-forward tcp://0.0.0.0:{serverPort}/10.144.144.1:{serverPort}";
         Task.Run(() => StartEasyTier(args));
-        var client = new PaperConnectClient($"127.0.0.1", serverPort, ClientPlayer);
-        client.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
+        _client = new PaperConnectClient($"127.0.0.1", serverPort, ClientPlayer);
+        _client.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
 
         AgreementEntry.PingResponse pingResponse = null;
         while (true)
         {
             try
             {
-                pingResponse = client.PingAsync().Result;
+                pingResponse = _client.PingAsync().Result;
                 if (pingResponse != null)
                 {
                     Console.WriteLine(pingResponse.GamePort);
@@ -299,12 +310,13 @@ public class PaperConnectCore
                $" --port-forward udp://0.0.0.0:{GamePort}/10.144.144.1:{GamePort}";
 
         Task.Run(() => StartEasyTier(args));
+        _client.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
 
         while (true)
         {
             try
             {
-                var result = client.PingAsync().Result;
+                var result = _client.PingAsync().Result;
                 if (result != null)
                 {
                     Console.WriteLine(result.GamePort);
@@ -319,8 +331,9 @@ public class PaperConnectCore
 
             Thread.Sleep(1000);
         }
+
         LinkSuccess?.Invoke();
-        client.StartHeartbeat();
+        _client.StartHeartbeat();
         while (true) ;
     }
 }
