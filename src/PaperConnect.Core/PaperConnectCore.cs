@@ -30,10 +30,9 @@ public class PaperConnectCore
 	public void Initialize(CoreType coreType,List<string> etPublicser)
     {
         CoreType = coreType;
-	    if (File.Exists("cofig.toml"))
-	    {
-		    File.Delete("config.toml");
-	    }
+	    if (File.Exists("config.toml"))
+            File.Delete("config.toml");
+        
 		if (string.IsNullOrEmpty(EasyTierPath)) 
             throw new NullReferenceException("EasyTierPath");
 
