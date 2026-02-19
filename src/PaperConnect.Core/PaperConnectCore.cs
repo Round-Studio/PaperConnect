@@ -171,7 +171,7 @@ public class PaperConnectCore
         }
     }
 
-    public void Stop()
+    public void Stop(bool isAllstop = false)
     {
         try
         {
@@ -190,7 +190,7 @@ public class PaperConnectCore
             Console.WriteLine($"Error stopping EasyTier: {ex.Message}");
         }
 
-        if (_client != null)
+        if (_client != null && isAllstop)
         {
             _client.Stop();
         }
@@ -334,6 +334,5 @@ public class PaperConnectCore
 
         LinkSuccess?.Invoke();
         _client.StartHeartbeat();
-        while (true) ;
     }
 }
