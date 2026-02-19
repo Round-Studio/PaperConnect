@@ -43,10 +43,9 @@ public class PaperConnectCore
 
         var argsJson = EmbeddedResourceHelper.ReadEmbeddedResource(Assembly.GetExecutingAssembly(),
             "PaperConnect.Core.Manifest.EasyTierParameter.json");
-        var serverJson = etPublicser;
        
         var argsEntry = JsonSerializer.Deserialize<List<string>>(argsJson);
-        var serverEntry = JsonSerializer.Deserialize<List<string>>(serverJson);
+        var serverEntry = etPublicser;
 
 
         if (coreType == CoreType.Server)
