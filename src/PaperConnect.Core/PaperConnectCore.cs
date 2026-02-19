@@ -22,12 +22,14 @@ public class PaperConnectCore
     public string ClientPlayer { get; set; } = "Steve";
     public Action<List<AgreementEntry.PlayerEntry>> OnPlayerInfoUpdated { get; set; }
     public System.Action? LinkSuccess { get; set; }
+    public CoreType CoreType { get; private set; }
     
     private Process _easyTierProcess;
     private bool _isClient = false;
    
 	public void Initialize(CoreType coreType)
     {
+        CoreType = coreType;
 	    if (File.Exists("cofig.toml"))
 	    {
 		    File.Delete("config.toml");

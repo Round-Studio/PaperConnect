@@ -10,15 +10,10 @@
       <None Remove="Manifest\EasyTierParameter.json" />
       <EmbeddedResource Include="Manifest\EasyTierParameter.json" />
       <None Remove="Manifest\PublicServerList.json" />
-      <EmbeddedResource Include="Manifest\PublicServerList.json" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Tomlyn" Version="0.20.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Manifest\PublicServerList.json" />
     </ItemGroup>
 
 </Project>
