@@ -27,7 +27,7 @@ public class PaperConnectCore
     private Process _easyTierProcess;
     private bool _isClient = false;
    
-	public void Initialize(CoreType coreType)
+	public void Initialize(CoreType coreType,List<string> etPublicser)
     {
         CoreType = coreType;
 	    if (File.Exists("cofig.toml"))
@@ -43,8 +43,7 @@ public class PaperConnectCore
 
         var argsJson = EmbeddedResourceHelper.ReadEmbeddedResource(Assembly.GetExecutingAssembly(),
             "PaperConnect.Core.Manifest.EasyTierParameter.json");
-        var serverJson = EmbeddedResourceHelper.ReadEmbeddedResource(Assembly.GetExecutingAssembly(),
-            "PaperConnect.Core.Manifest.PublicServerList.json");
+        var serverJson = etPublicser;
        
         var argsEntry = JsonSerializer.Deserialize<List<string>>(argsJson);
         var serverEntry = JsonSerializer.Deserialize<List<string>>(serverJson);
