@@ -57,7 +57,7 @@ public class PaperConnectCore
             var fromModel = Toml.FromModel(acl);
             File.WriteAllText("config.toml", fromModel);
             RoomCode = RoomCodeGenerator.GenerateRoomCode();
-            Console.WriteLine($"RoomCode: {RoomCode}");
+            Console.WriteLine($@"RoomCode: {RoomCode}");
 
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
             var server = new PaperConnectServer(ClientPlayer, GamePort);
@@ -104,7 +104,7 @@ public class PaperConnectCore
     {
         try
         {
-            Console.WriteLine($"Starting EasyTier with args: {arguments}");
+            Console.WriteLine($@"Starting EasyTier with args: {arguments}");
 
             var startInfo = new ProcessStartInfo
             {
@@ -122,7 +122,7 @@ public class PaperConnectCore
             _easyTierProcess.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                    Console.WriteLine($"[EasyTier] {e.Data}");
+                    Console.WriteLine($@"[EasyTier] {e.Data}");
 
                 if (!isStart &&
                     _isClient)
@@ -147,7 +147,7 @@ public class PaperConnectCore
             _easyTierProcess.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                    Console.WriteLine($"[EasyTier ERROR] {e.Data}");
+                    Console.WriteLine($@"[EasyTier ERROR] {e.Data}");
             };
 
             if (_easyTierProcess.Start())
@@ -155,18 +155,18 @@ public class PaperConnectCore
                 _easyTierProcess.BeginOutputReadLine();
                 _easyTierProcess.BeginErrorReadLine();
 
-                Console.WriteLine($"EasyTier started with PID: {_easyTierProcess.Id}");
+                Console.WriteLine($@"EasyTier started with PID: {_easyTierProcess.Id}");
             }
             else
             {
-                Console.WriteLine("Failed to start EasyTier process");
+                Console.WriteLine(@"Failed to start EasyTier process");
             }
 
             _easyTierProcess.WaitForExit();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error starting EasyTier: {ex.Message}");
+            Console.WriteLine($@"Error starting EasyTier: {ex.Message}");
             throw;
         }
     }
@@ -177,7 +177,7 @@ public class PaperConnectCore
         {
             _easyTierProcess.Kill();
             _easyTierProcess.WaitForExit(5000);
-            Console.WriteLine("EasyTier stopped");
+            Console.WriteLine(@"EasyTier stopped");
 
             var processes = Process.GetProcesses()
                 .Where(p => p.ProcessName.Equals("easytier-core.exe", StringComparison.OrdinalIgnoreCase))
@@ -187,7 +187,7 @@ public class PaperConnectCore
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error stopping EasyTier: {ex.Message}");
+            Console.WriteLine($@"Error stopping EasyTier: {ex.Message}");
         }
 
         if (_client != null && isAllstop)
@@ -201,7 +201,7 @@ public class PaperConnectCore
         var sb = new StringBuilder();
         try
         {
-            Console.WriteLine($"Starting EasyTierCli with args: {arguments}");
+            Console.WriteLine($@"Starting EasyTierCli with args: {arguments}");
 
             var startInfo = new ProcessStartInfo
             {
@@ -224,7 +224,7 @@ public class PaperConnectCore
             etCli.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                    Console.WriteLine($"[EasyTierCli ERROR] {e.Data}");
+                    Console.WriteLine($@"[EasyTierCli ERROR] {e.Data}");
             };
 
             if (etCli.Start())
@@ -232,18 +232,18 @@ public class PaperConnectCore
                 etCli.BeginOutputReadLine();
                 etCli.BeginErrorReadLine();
 
-                Console.WriteLine($"EasyTierCli started with PID: {etCli.Id}");
+                Console.WriteLine($@"EasyTierCli started with PID: {etCli.Id}");
             }
             else
             {
-                Console.WriteLine("Failed to start EasyTierCli process");
+                Console.WriteLine(@"Failed to start EasyTierCli process");
             }
 
             etCli.WaitForExit();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error starting EasyTierCli: {ex.Message}");
+            Console.WriteLine($@"Error starting EasyTierCli: {ex.Message}");
             throw;
         }
 
@@ -266,7 +266,7 @@ public class PaperConnectCore
 
         Stop();
         var serverPort = int.Parse(hostName.Replace($"{RoomCodeGenerator.ROOM_NAME}-server-", ""));
-        Console.WriteLine($"Host Port: {serverPort}");
+        Console.WriteLine($@"Host Port: {serverPort}");
 
         var args = $"-d --network-name {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkName} " +
                    $"--network-secret {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkKey} " +

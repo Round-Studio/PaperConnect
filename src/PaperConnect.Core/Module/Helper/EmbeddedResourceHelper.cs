@@ -24,10 +24,10 @@ public class EmbeddedResourceHelper
         var assembly = Assembly.GetExecutingAssembly();
         var resources = assembly.GetManifestResourceNames();
         
-        Console.WriteLine("程序集中的嵌入式资源:");
+        Console.WriteLine(@"程序集中的嵌入式资源:");
         foreach (var resource in resources)
         {
-            Console.WriteLine($"  {resource}");
+            Console.WriteLine($@"  {resource}");
         }
     }
     

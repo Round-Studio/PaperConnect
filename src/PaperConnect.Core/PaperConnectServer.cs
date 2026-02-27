@@ -43,7 +43,7 @@ public class PaperConnectServer : IPaperConnect
     public async Task StartAsync()
     {
         _listener.Start();
-        Console.WriteLine($"[PaperConnect] Server listening on port {ServerPort}");
+        Console.WriteLine($@"[PaperConnect] Server listening on port {ServerPort}");
 
         OnPlayerInfoUpdated.Invoke(_players.Values.ToList());
 
@@ -63,7 +63,7 @@ public class PaperConnectServer : IPaperConnect
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Error] Accepting client: {ex.Message}");
+                Console.WriteLine($@"[Error] Accepting client: {ex.Message}");
             }
         }
     }
@@ -72,7 +72,7 @@ public class PaperConnectServer : IPaperConnect
     {
         _cts.Cancel();
         _listener.Stop();
-        Console.WriteLine("[PaperConnect] Server stopped.");
+        Console.WriteLine(@"[PaperConnect] Server stopped.");
     }
 
     private async Task HandleClientAsync(TcpClient client)
@@ -119,7 +119,7 @@ public class PaperConnectServer : IPaperConnect
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Client Error]: {ex.Message}");
+            Console.WriteLine($@"[Client Error]: {ex.Message}");
             SendErrorResponse(stream, "Invalid request");
         }
         finally
@@ -189,7 +189,7 @@ public class PaperConnectServer : IPaperConnect
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Process Error]: {ex.Message}");
+            Console.WriteLine($@"[Process Error]: {ex.Message}");
             SendErrorResponse(stream, "Malformed JSON");
         }
     }
@@ -226,7 +226,7 @@ public class PaperConnectServer : IPaperConnect
                 {
                     _players.TryRemove(name, out _);
                     OnPlayerInfoUpdated?.Invoke(_players.Values.ToList());
-                    Console.WriteLine($"[Cleanup] Removed inactive player: {name}");
+                    Console.WriteLine($@"[Cleanup] Removed inactive player: {name}");
                 }
 
                 await Task.Delay(10000, _cts.Token);

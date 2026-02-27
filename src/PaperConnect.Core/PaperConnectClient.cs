@@ -81,7 +81,7 @@ public class PaperConnectClient : IDisposable,IPaperConnect
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[Heartbeat Error]: {ex.Message}");
+                    Console.WriteLine($@"[Heartbeat Error]: {ex.Message}");
                 }
 
                 try
