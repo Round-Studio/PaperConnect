@@ -11,8 +11,6 @@ using PaperConnect.Core.Room;
 using PaperConnect.Core.Utils;
 using Tomlyn;
 
-
-
 public class PaperConnectCore
 {
     public required string EasyTierPath { get; set; }
@@ -27,20 +25,22 @@ public class PaperConnectCore
     private Process _easyTierProcess;
     private List<string> PublicServers { get; set; }
     private bool _isClient = false;
-    
     private PaperConnectClient _client { get; set; }
+    private bool _isStart = false;
+    private CancellationTokenSource _cts;
 
     public void Initialize(CoreType coreType, List<string> etPublicser)
     {
         CoreType = coreType;
         PublicServers = etPublicser;
+        _cts = new CancellationTokenSource();
+        
         if (File.Exists("config.toml"))
             File.Delete("config.toml");
 
         if (string.IsNullOrEmpty(EasyTierPath))
             throw new NullReferenceException("EasyTierPath");
 
-        // 验证 EasyTier 文件是否存在
         if (!File.Exists(EasyTierPath))
             throw new FileNotFoundException($"EasyTier not found at: {EasyTierPath}");
 
@@ -49,7 +49,6 @@ public class PaperConnectCore
 
         var argsEntry = JsonSerializer.Deserialize<List<string>>(argsJson);
         var serverEntry = etPublicser;
-
 
         if (coreType == CoreType.Server)
         {
@@ -63,13 +62,10 @@ public class PaperConnectCore
             var server = new PaperConnectServer(ClientPlayer, GamePort);
             server.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
 
-            // 启动服务器
-            _ = Task.Run(() => server.StartAsync());
+            _ = Task.Run(() => server.StartAsync(), _cts.Token);
 
-            // 启动 EasyTier 服务端
             var args = $"-i 10.144.144.1 --hostname paper-connect-server-{server.ServerPort} " +
                        $"--network-name {roomCodeInfo.NetworkName} --network-secret {roomCodeInfo.NetworkKey} " +
-                       //   $"--tcp-whitelist {server.ServerPort} --udp-whitelist {GamePort} " +
                        string.Join(" ", argsEntry) +
                        " -p " +
                        string.Join(" -p ", serverEntry);
@@ -82,12 +78,12 @@ public class PaperConnectCore
             var acl = PaperConnectAclBuilder.BuildPaperConnectAcl(false, "10.144.144.1", null);
             var fromModel = Toml.FromModel(acl);
             File.WriteAllText("config.toml", fromModel);
+            
             if (string.IsNullOrEmpty(RoomCode))
                 throw new NullReferenceException("RoomCode");
 
             var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
 
-            // 启动 EasyTier 客户端
             var args = $"-d --network-name {roomCodeInfo.NetworkName} " +
                        $"--network-secret {roomCodeInfo.NetworkKey} " +
                        string.Join(" ", argsEntry) +
@@ -98,18 +94,23 @@ public class PaperConnectCore
         }
     }
 
-    bool isStart = false;
-
     private void StartEasyTier(string arguments)
     {
         try
         {
             Console.WriteLine($@"Starting EasyTier with args: {arguments}");
+            
+            // 使用 PowerShell 启动并捕获输出
+            var escapedArgs = arguments.Replace("\"", "\\\"");
+            var psScript = $@"
+                $process = Start-Process -FilePath '{EasyTierPath}' -ArgumentList '{escapedArgs}' -Verb RunAs -PassThru -WindowStyle Hidden
+                $process.Id
+            ";
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = EasyTierPath,
-                Arguments = arguments,
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{psScript}\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -118,20 +119,22 @@ public class PaperConnectCore
 
             _easyTierProcess = new Process { StartInfo = startInfo };
 
-            // 添加输出事件处理
+            // 处理输出
+            var outputData = new StringBuilder();
+            var errorData = new StringBuilder();
+
             _easyTierProcess.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                    Console.WriteLine($@"[EasyTier] {e.Data}");
-
-                if (!isStart &&
-                    _isClient)
                 {
-                    if (e.Data.Contains("new peer added."))
+                    outputData.AppendLine(e.Data);
+                    Console.WriteLine($@"[EasyTier] {e.Data}");
+                    
+                    // 处理客户端连接逻辑
+                    if (!_isStart && _isClient && e.Data.Contains("new peer added."))
                     {
-                        isStart = true;
+                        _isStart = true;
                         var json = GetPeers();
-
                         json.ForEach(p =>
                         {
                             if (p.Hostname.Contains(RoomCodeGenerator.ROOM_NAME))
@@ -147,7 +150,10 @@ public class PaperConnectCore
             _easyTierProcess.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
+                {
+                    errorData.AppendLine(e.Data);
                     Console.WriteLine($@"[EasyTier ERROR] {e.Data}");
+                }
             };
 
             if (_easyTierProcess.Start())
@@ -155,14 +161,21 @@ public class PaperConnectCore
                 _easyTierProcess.BeginOutputReadLine();
                 _easyTierProcess.BeginErrorReadLine();
 
-                Console.WriteLine($@"EasyTier started with PID: {_easyTierProcess.Id}");
+                Console.WriteLine($@"EasyTier started");
             }
             else
             {
                 Console.WriteLine(@"Failed to start EasyTier process");
+                return;
             }
 
+            // 等待进程退出
             _easyTierProcess.WaitForExit();
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            Console.WriteLine("用户取消了管理员权限请求");
+            throw new Exception("需要管理员权限才能运行 EasyTier");
         }
         catch (Exception ex)
         {
@@ -175,15 +188,32 @@ public class PaperConnectCore
     {
         try
         {
-            _easyTierProcess.Kill();
-            _easyTierProcess.WaitForExit(5000);
-            Console.WriteLine(@"EasyTier stopped");
+            _cts?.Cancel();
+            
+            if (_easyTierProcess != null && !_easyTierProcess.HasExited)
+            {
+                _easyTierProcess.Kill();
+                _easyTierProcess.WaitForExit(5000);
+                _easyTierProcess.Dispose();
+                Console.WriteLine(@"EasyTier stopped");
+            }
 
             var processes = Process.GetProcesses()
                 .Where(p => p.ProcessName.Equals("easytier-core.exe", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            processes.ForEach(p => p.Kill(true));
+            foreach (var p in processes)
+            {
+                try
+                {
+                    p.Kill();
+                    p.WaitForExit(3000);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($@"Error killing process {p.Id}: {ex.Message}");
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -202,19 +232,25 @@ public class PaperConnectCore
         try
         {
             Console.WriteLine($@"Starting EasyTierCli with args: {arguments}");
+            
+            var escapedArgs = arguments.Replace("\"", "\\\"");
+            var psScript = $@"
+                $process = Start-Process -FilePath '{EasyTierCliPath}' -ArgumentList '{escapedArgs}' -Verb RunAs -PassThru -WindowStyle Hidden -Wait
+                $process.ExitCode
+            ";
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = EasyTierCliPath,
-                Arguments = arguments,
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{psScript}\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
             };
+
             var etCli = new Process { StartInfo = startInfo };
 
-            // 添加输出事件处理
             etCli.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
@@ -231,15 +267,18 @@ public class PaperConnectCore
             {
                 etCli.BeginOutputReadLine();
                 etCli.BeginErrorReadLine();
-
-                Console.WriteLine($@"EasyTierCli started with PID: {etCli.Id}");
+                etCli.WaitForExit();
+                Console.WriteLine($@"EasyTierCli completed");
             }
             else
             {
                 Console.WriteLine(@"Failed to start EasyTierCli process");
             }
-
-            etCli.WaitForExit();
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            Console.WriteLine("用户取消了管理员权限请求");
+            throw new Exception("需要管理员权限才能运行 EasyTierCli");
         }
         catch (Exception ex)
         {
@@ -253,7 +292,19 @@ public class PaperConnectCore
     private List<PeerInfo> GetPeers()
     {
         var json = StartEasyTierCli("-o json peer");
-        return JsonSerializer.Deserialize<List<PeerInfo>>(json);
+        if (string.IsNullOrEmpty(json))
+            return new List<PeerInfo>();
+            
+        try
+        {
+            return JsonSerializer.Deserialize<List<PeerInfo>>(json) ?? new List<PeerInfo>();
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($@"Failed to parse peer info: {ex.Message}");
+            Console.WriteLine($@"JSON: {json}");
+            return new List<PeerInfo>();
+        }
     }
 
     private void StartClient(string hostName, List<string> sers)
@@ -265,44 +316,60 @@ public class PaperConnectCore
         var serverEntry = sers;
 
         Stop();
+        
         var serverPort = int.Parse(hostName.Replace($"{RoomCodeGenerator.ROOM_NAME}-server-", ""));
         Console.WriteLine($@"Host Port: {serverPort}");
 
-        var args = $"-d --network-name {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkName} " +
-                   $"--network-secret {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkKey} " +
+        var roomCodeInfo = RoomCodeGenerator.ParseRoomCode(RoomCode);
+        
+        var args = $"-d --network-name {roomCodeInfo.NetworkName} " +
+                   $"--network-secret {roomCodeInfo.NetworkKey} " +
                    string.Join(" ", argsEntry) +
                    " -p " +
                    string.Join(" -p ", serverEntry) +
                    $" --port-forward tcp://0.0.0.0:{serverPort}/10.144.144.1:{serverPort}";
+                   
         Task.Run(() => StartEasyTier(args));
         _client = new PaperConnectClient($"127.0.0.1", serverPort, ClientPlayer);
         _client.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
 
+        // 等待连接建立
         AgreementEntry.PingResponse pingResponse = null;
-        while (true)
+        var retryCount = 0;
+        const int maxRetries = 30;
+        
+        while (retryCount < maxRetries)
         {
             try
             {
                 pingResponse = _client.PingAsync().Result;
                 if (pingResponse != null)
                 {
-                    Console.WriteLine(pingResponse.GamePort);
-                    Console.WriteLine(pingResponse.GameProtocolType);
-                    Console.WriteLine(pingResponse.GameType);
+                    Console.WriteLine($"GamePort: {pingResponse.GamePort}");
+                    Console.WriteLine($"GameProtocolType: {pingResponse.GameProtocolType}");
+                    Console.WriteLine($"GameType: {pingResponse.GameType}");
                     break;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Ping attempt {retryCount + 1} failed: {ex.Message}");
             }
 
+            retryCount++;
             Thread.Sleep(1000);
+        }
+
+        if (pingResponse == null)
+        {
+            Console.WriteLine("Failed to connect to server");
+            return;
         }
 
         Stop();
 
-        args = $"-d --network-name {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkName} " +
-               $"--network-secret {RoomCodeGenerator.ParseRoomCode(RoomCode).NetworkKey} " +
+        args = $"-d --network-name {roomCodeInfo.NetworkName} " +
+               $"--network-secret {roomCodeInfo.NetworkKey} " +
                string.Join(" ", argsEntry) +
                " -p " +
                string.Join(" -p ", serverEntry) +
@@ -312,23 +379,26 @@ public class PaperConnectCore
         Task.Run(() => StartEasyTier(args));
         _client.OnPlayerInfoUpdated = OnPlayerInfoUpdated;
 
-        while (true)
+        retryCount = 0;
+        while (retryCount < maxRetries)
         {
             try
             {
                 var result = _client.PingAsync().Result;
                 if (result != null)
                 {
-                    Console.WriteLine(result.GamePort);
-                    Console.WriteLine(result.GameProtocolType);
-                    Console.WriteLine(result.GameType);
+                    Console.WriteLine($"GamePort: {result.GamePort}");
+                    Console.WriteLine($"GameProtocolType: {result.GameProtocolType}");
+                    Console.WriteLine($"GameType: {result.GameType}");
                     break;
                 }
             }
             catch
             {
+                // 忽略连接错误
             }
 
+            retryCount++;
             Thread.Sleep(1000);
         }
 
