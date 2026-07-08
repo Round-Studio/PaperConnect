@@ -174,7 +174,7 @@ public class PaperConnectCore
         }
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {
-            Console.WriteLine("用户取消了管理员权限请求");
+            Console.WriteLine(@"用户取消了管理员权限请求");
             throw new Exception("需要管理员权限才能运行 EasyTier");
         }
         catch (Exception ex)
@@ -277,7 +277,7 @@ public class PaperConnectCore
         }
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {
-            Console.WriteLine("用户取消了管理员权限请求");
+            Console.WriteLine(@"用户取消了管理员权限请求");
             throw new Exception("需要管理员权限才能运行 EasyTierCli");
         }
         catch (Exception ex)
@@ -345,15 +345,15 @@ public class PaperConnectCore
                 pingResponse = _client.PingAsync().Result;
                 if (pingResponse != null)
                 {
-                    Console.WriteLine($"GamePort: {pingResponse.GamePort}");
-                    Console.WriteLine($"GameProtocolType: {pingResponse.GameProtocolType}");
-                    Console.WriteLine($"GameType: {pingResponse.GameType}");
+                    Console.WriteLine($@"GamePort: {pingResponse.GamePort}");
+                    Console.WriteLine($@"GameProtocolType: {pingResponse.GameProtocolType}");
+                    Console.WriteLine($@"GameType: {pingResponse.GameType}");
                     break;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ping attempt {retryCount + 1} failed: {ex.Message}");
+                Console.WriteLine($@"Ping attempt {retryCount + 1} failed: {ex.Message}");
             }
 
             retryCount++;
@@ -362,7 +362,7 @@ public class PaperConnectCore
 
         if (pingResponse == null)
         {
-            Console.WriteLine("Failed to connect to server");
+            Console.WriteLine(@"Failed to connect to server");
             return;
         }
 
@@ -387,9 +387,9 @@ public class PaperConnectCore
                 var result = _client.PingAsync().Result;
                 if (result != null)
                 {
-                    Console.WriteLine($"GamePort: {result.GamePort}");
-                    Console.WriteLine($"GameProtocolType: {result.GameProtocolType}");
-                    Console.WriteLine($"GameType: {result.GameType}");
+                    Console.WriteLine($@"GamePort: {result.GamePort}");
+                    Console.WriteLine($@"GameProtocolType: {result.GameProtocolType}");
+                    Console.WriteLine($@"GameType: {result.GameType}");
                     break;
                 }
             }
