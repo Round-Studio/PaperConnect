@@ -1,10 +1,20 @@
 [
+  "--no-tun",
   "--multi-thread",
-  "-l",
-  "udp://0.0.0.0:0",
-  "-l",
-  "tcp://0.0.0.0:0",
-  "--disable-p2p",
-  "false",
-  "-c ./config.toml"
+  "--enable-kcp-proxy",
+  "--enable-quic-proxy",
+  "--latency-first",
+  "--encryption-algorithm",
+  "aes-gcm",
+  "--compression",
+  "zstd",
+  "--default-protocol",
+  "tcp",
+  "--private-mode",
+  "true",
+  "--p2p-only",
+  "--console-log-level",
+  "info",
+  "-c",
+  "./config.toml"
 ]
